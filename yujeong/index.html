@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Motion Designer — Self Introduction</title>
+  <style>
+    :root {
+      --bg: #070707;
+      --bg-soft: #101010;
+      --text: #f2eee8;
+      --muted: #aaa39a;
+      --dim: #6f6860;
+      --line: rgba(242, 238, 232, 0.16);
+      --soft-line: rgba(242, 238, 232, 0.08);
+      --accent: #ff6b35;
+      --accent-2: #d6ff63;
+      --card: rgba(255, 255, 255, 0.055);
+      --card-strong: rgba(255, 255, 255, 0.09);
+      --glass: rgba(7, 7, 7, 0.72);
+      --shadow: 0 40px 100px rgba(0, 0, 0, 0.48);
+      --radius: 32px;
+      --mono: "Courier New", "SFMono-Regular", monospace;
+      --sans: Arial, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255, 107, 53, 0.16), transparent 24%),
+        radial-gradient(circle at 88% 18%, rgba(214, 255, 99, 0.08), transparent 22%),
+        linear-gradient(180deg, #070707 0%, #0b0b0b 46%, #050505 100%);
+      color: var(--text);
+      line-height: 1.85;
+      letter-spacing: -0.025em;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .noise {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    .cursor,
+    .cursor-dot {
+      pointer-events: none;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 999;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      mix-blend-mode: difference;
+    }
+
+    .cursor {
+      width: 46px;
+      height: 46px;
+      border: 1px solid #fff;
+      transition: width 0.18s ease, height 0.18s ease, opacity 0.18s ease;
+    }
+
+    .cursor-dot {
+      width: 6px;
+      height: 6px;
+      background: #fff;
+    }
+
+    .cursor.active {
+      width: 86px;
+      height: 86px;
+      opacity: 0.72;
+    }
+
+    .wrap {
+      width: min(1440px, calc(100% - 56px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: fixed;
+      left: 50%;
+      top: 22px;
+      z-index: 60;
+      width: min(1440px, calc(100% - 56px));
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 15px 18px;
+      border: 1px solid var(--soft-line);
+      border-radius: 999px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 8px rgba(255, 107, 53, 0.12);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--soft-line);
+      border-radius: 999px;
+    }
+
+    .nav-links a {
+      padding: 8px 14px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      transition: 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .nav-meta {
+      display: flex;
+      justify-content: flex-end;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      padding: 150px 0 70px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -1px;
+      width: 100vw;
+      height: 1px;
+      transform: translateX(-50%);
+      background: var(--soft-line);
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 0.82fr;
+      gap: 52px;
+      width: 100%;
+      align-items: end;
+    }
+
+    .kicker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 48px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .hero h1 {
+      max-width: 950px;
+      font-size: clamp(66px, 11.8vw, 188px);
+      line-height: 0.9;
+      letter-spacing: -0.105em;
+      font-weight: 900;
+    }
+
+    .hero h1 span {
+      display: block;
+    }
+
+    .hero h1 .outline {
+      color: transparent;
+      -webkit-text-stroke: 1.3px var(--text);
+      text-stroke: 1.3px var(--text);
+    }
+
+    .hero h1 .indent {
+      padding-left: 0.16em;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-image {
+      position: relative;
+      min-height: 560px;
+      border: 1px solid var(--line);
+      border-radius: 42px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255, 107, 53, 0.18), transparent 28%),
+        #191919;
+      box-shadow: var(--shadow);
+      transform: rotate(1.2deg);
+    }
+
+    .profile-photo-frame {
+      isolation: isolate;
+    }
+
+    .profile-photo-frame::before {
+      content: "PROFILE";
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      z-index: 2;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.36);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1;
+      letter-spacing: 0.06em;
+    }
+
+    .profile-photo-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.5) 100%),
+        radial-gradient(circle at 72% 22%, rgba(255, 107, 53, 0.16), transparent 28%);
+      pointer-events: none;
+    }
+
+    .hero-image img {
+      width: 100%;
+      height: 100%;
+      min-height: 560px;
+      object-fit: cover;
+      object-position: center top;
+      filter: grayscale(0.08) contrast(1.06) brightness(0.86);
+      transform: scale(1.02);
+    }
+
+    .hero-image .photo-caption {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      z-index: 3;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: 0.03em;
+    }
+
+    .hero-panel {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-panel p {
+      color: var(--text);
+      font-size: clamp(17px, 1.35vw, 22px);
+      line-height: 1.85;
+      letter-spacing: -0.04em;
+      word-break: keep-all;
+    }
+
+    .hero-panel .sub {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--soft-line);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.8;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 30px;
+      z-index: 2;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .scroll-hint i {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      animation: pulse 1.3s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.65); opacity: 0.45; }
+      50% { transform: scale(1.35); opacity: 1; }
+    }
+
+    .marquee {
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      border-block: 1px solid var(--line);
+      overflow: hidden;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .marquee-track {
+      display: inline-flex;
+      gap: 30px;
+      padding: 24px 0 28px;
+      animation: marquee 25s linear infinite;
+      font-size: clamp(34px, 5.4vw, 84px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.08em;
+      text-transform: uppercase;
+    }
+
+    .marquee-track span:nth-child(even) {
+      color: transparent;
+      -webkit-text-stroke: 1px var(--text);
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    section {
+      padding: 118px 0;
+      border-bottom: 1px solid var(--soft-line);
+    }
+
+    .section-top {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 46px;
+      margin-bottom: 58px;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .section-title {
+      max-width: 980px;
+      font-size: clamp(38px, 6.2vw, 96px);
+      line-height: 1.05;
+      letter-spacing: -0.088em;
+      font-weight: 900;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .statement {
+      min-height: 560px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--text);
+      color: var(--bg);
+      overflow: hidden;
+    }
+
+    .statement small {
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.6;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      opacity: 0.62;
+    }
+
+    .statement strong {
+      display: block;
+      max-width: 720px;
+      font-size: clamp(34px, 4.6vw, 72px);
+      line-height: 1.08;
+      letter-spacing: -0.085em;
+    }
+
+    .about-image {
+      min-height: 260px;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      margin-top: 28px;
+      opacity: 0.96;
+    }
+
+    .about-image img {
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+      object-fit: cover;
+      object-position: center top;
+      filter: grayscale(0.08) contrast(1.08) brightness(0.9);
+    }
+
+    .mini-profile-image {
+      max-height: 300px;
+    }
+
+    .text-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .text-box {
+      padding: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      backdrop-filter: blur(16px);
+    }
+
+    .text-box h3 {
+      margin-bottom: 16px;
+      font-size: 25px;
+      line-height: 1.35;
+      letter-spacing: -0.055em;
+    }
+
+    .text-box p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.95;
+      letter-spacing: -0.025em;
+      word-break: keep-all;
+    }
+
+    .gallery-strip {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 1fr;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .gallery-item {
+      position: relative;
+      min-height: 300px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      overflow: hidden;
+      background: #151515;
+    }
+
+    .gallery-item:nth-child(2) {
+      margin-top: 52px;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      min-height: 300px;
+      object-fit: cover;
+      filter: grayscale(0.45) contrast(1.12) brightness(0.72);
+      transition: transform 0.55s ease, filter 0.55s ease;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.07);
+      filter: grayscale(0.05) contrast(1.08) brightness(0.82);
+    }
+
+    .gallery-item span {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      padding: 8px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.38);
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .capabilities {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .capability {
+      position: relative;
+      min-height: 420px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      overflow: hidden;
+      transition: transform 0.32s ease, box-shadow 0.32s ease, background 0.32s ease;
+    }
+
+    .capability:hover {
+      transform: translateY(-9px);
+      background: var(--card-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .capability::after {
+      content: "";
+      position: absolute;
+      right: -65px;
+      bottom: -65px;
+      width: 170px;
+      height: 170px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      opacity: 0.75;
+    }
+
+    .capability .idx {
+      font-family: var(--mono);
+      color: var(--accent);
+      font-size: 11px;
+      line-height: 1.6;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .capability h3 {
+      margin-top: auto;
+      margin-bottom: 20px;
+      font-size: clamp(30px, 3vw, 48px);
+      line-height: 1.05;
+      letter-spacing: -0.085em;
+    }
+
+    .capability p {
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.95;
+      word-break: keep-all;
+    }
+
+    .work-card {
+      display: grid;
+      grid-template-columns: 0.68fr 1.32fr;
+      min-height: 590px;
+      border: 1px solid var(--line);
+      border-radius: 38px;
+      overflow: hidden;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 38px;
+      background: var(--accent);
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .metric::before,
+    .metric::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+    }
+
+    .metric::before {
+      width: 280px;
+      height: 280px;
+      right: -90px;
+      top: -90px;
+    }
+
+    .metric::after {
+      width: 430px;
+      height: 430px;
+      left: -180px;
+      bottom: -190px;
+    }
+
+    .metric small {
+      position: relative;
+      z-index: 1;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.6;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      opacity: 0.78;
+    }
+
+    .metric strong {
+      position: relative;
+      z-index: 1;
+      display: block;
+      font-size: clamp(86px, 12vw, 190px);
+      line-height: 0.9;
+      letter-spacing: -0.12em;
+    }
+
+    .metric span {
+      position: relative;
+      z-index: 1;
+      max-width: 310px;
+      font-size: 17px;
+      line-height: 1.85;
+      color: rgba(255, 255, 255, 0.84);
+      word-break: keep-all;
+    }
+
+    .work-detail {
+      padding: 38px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 44px;
+    }
+
+    .work-detail h3 {
+      max-width: 800px;
+      font-size: clamp(38px, 5.4vw, 86px);
+      line-height: 1.02;
+      letter-spacing: -0.09em;
+    }
+
+    .process {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+    }
+
+    .process-item {
+      padding: 22px;
+      border: 1px solid var(--soft-line);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .process-item small {
+      display: block;
+      margin-bottom: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .process-item p {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.9;
+      word-break: keep-all;
+    }
+
+    .skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 11px;
+    }
+
+    .skill {
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      transition: 0.2s ease;
+    }
+
+    .skill:hover {
+      background: var(--text);
+      color: var(--bg);
+      transform: translateY(-2px);
+    }
+
+    .vision-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .vision-card {
+      min-height: 450px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+    }
+
+    .vision-card small {
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .vision-card h3 {
+      font-size: clamp(42px, 5.2vw, 84px);
+      line-height: 1;
+      letter-spacing: -0.1em;
+    }
+
+    .vision-card p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.95;
+      word-break: keep-all;
+    }
+
+    .vision-card.figure {
+      padding: 0;
+      min-height: 450px;
+    }
+
+    .vision-card.figure img {
+      width: 100%;
+      height: 100%;
+      min-height: 450px;
+      object-fit: cover;
+      filter: grayscale(0.25) contrast(1.1) brightness(0.78);
+    }
+
+    .contact {
+      min-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding-bottom: 126px;
+      border-bottom: 0;
+    }
+
+    .contact h2 {
+      max-width: 1130px;
+      margin-bottom: 32px;
+      font-size: clamp(58px, 10vw, 166px);
+      line-height: 0.92;
+      letter-spacing: -0.11em;
+      font-weight: 900;
+    }
+
+    .contact p {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 2;
+      margin-bottom: 38px;
+      word-break: keep-all;
+    }
+
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 180px;
+      height: 180px;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      transition: 0.25s ease;
+    }
+
+    .contact-link:hover {
+      transform: scale(1.06) rotate(-4deg);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 30px 0 38px;
+      border-top: 1px solid var(--soft-line);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.7;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.85s ease, transform 0.85s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1080px) {
+      body {
+        cursor: auto;
+      }
+
+      .cursor,
+      .cursor-dot {
+        display: none;
+      }
+
+      .nav {
+        grid-template-columns: 1fr auto;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 145px;
+      }
+
+      .hero-grid,
+      .split,
+      .work-card,
+      .section-top {
+        grid-template-columns: 1fr;
+      }
+
+      .capabilities,
+      .vision-grid,
+      .gallery-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .gallery-item:nth-child(2) {
+        margin-top: 0;
+      }
+
+      .statement,
+      .capability,
+      .vision-card {
+        min-height: 350px;
+      }
+
+      .work-card {
+        min-height: auto;
+      }
+
+      .metric {
+        min-height: 350px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .wrap,
+      .nav {
+        width: min(100% - 28px, 1440px);
+      }
+
+      .nav {
+        top: 14px;
+        padding: 12px;
+      }
+
+      .brand span:last-child {
+        display: none;
+      }
+
+      .nav-meta {
+        font-size: 10px;
+      }
+
+      .hero h1 {
+        font-size: 64px;
+      }
+
+      .hero-image,
+      .hero-image img {
+        min-height: 390px;
+      }
+
+      .hero-panel,
+      .statement,
+      .text-box,
+      .capability,
+      .metric,
+      .work-detail,
+      .vision-card {
+        padding: 23px;
+      }
+
+      .vision-card.figure {
+        padding: 0;
+      }
+
+      .process {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 82px 0;
+      }
+
+      .contact-link {
+        width: 148px;
+        height: 148px;
+      }
+
+      footer {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="cursor" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+
+  <header class="nav">
+    <a href="#home" class="brand" aria-label="홈으로 이동">
+      <i class="brand-mark" aria-hidden="true"></i>
+      <span>AI Motion Designer</span>
+    </a>
+
+    <nav class="nav-links" aria-label="페이지 메뉴">
+      <a href="#about">About</a>
+      <a href="#capability">Ability</a>
+      <a href="#work">Work</a>
+      <a href="#vision">Vision</a>
+    </nav>
+
+    <div class="nav-meta">Seoul · Ulsan / 2026</div>
+  </header>
+
+  <main id="home">
+    <section class="hero wrap">
+      <div class="hero-grid reveal">
+        <div>
+          <div class="kicker">Self Introduction / Visual Portfolio</div>
+          <h1>
+            <span>AI</span>
+            <span>Motion</span>
+            <span class="indent outline">Designer</span>
+          </h1>
+        </div>
+
+        <aside class="hero-side">
+          <figure class="hero-image profile-photo-frame">
+            <img src="1.png" alt="AI 모션그래픽 디자이너 프로필 사진" />
+            <figcaption class="photo-caption">AI MOTION / PROFILE</figcaption>
+          </figure>
+
+          <div class="hero-panel">
+            <p>
+              SBS아카데미컴퓨터아트학원 울산점에서
+              영상 강의를 진행하고 있습니다.
+            </p>
+            <div class="sub">After Effects · Cinema 4D · Blender · AI Video · Prompt Design</div>
+          </div>
+        </aside>
+      </div>
+      <div class="scroll-hint"><i></i> Scroll</div>
+    </section>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>AI VIDEO</span><span>MOTION GRAPHIC</span><span>VISUAL STORYTELLING</span><span>HYBRID WORKFLOW</span>
+        <span>AI VIDEO</span><span>MOTION GRAPHIC</span><span>VISUAL STORYTELLING</span><span>HYBRID WORKFLOW</span>
+      </div>
+    </div>
+
+    <section id="about" class="wrap reveal">
+      <div class="section-top">
+        <div class="section-label">01 / About</div>
+        <h2 class="section-title"> 표현 방식을 설계하는 사람.</h2>
+      </div>
+
+      <div class="split">
+        <article class="statement">
+          <small>Core Value</small>
+          <strong>표현의 한계를 넘기 위해 기술을 도구로 삼습니다.</strong>
+          <figure class="about-image mini-profile-image">
+            <img src="2.webp" alt="프로필 사진 클로즈업" />
+          </figure>
+        </article>
+
+        <div class="text-stack">
+          <article class="text-box">
+            <h3>성장 과정과 가치관</h3>
+            <p>
+              머릿속 상상을 시각적으로 완벽하게 구현하는 일에 매력을 느끼며,
+              학창 시절부터 After Effects와 Cinema 4D를 깊이 있게 익혔습니다.
+              단순한 기술 습득에 그치지 않고, 영상이 전달하는 메시지와 스토리에 집중하는 태도를 길렀습니다.
+            </p>
+          </article>
+
+          <article class="text-box">
+            <h3>현재의 방향성</h3>
+            <p>
+              생성형 AI 기술의 빠른 발전을 영상 제작 파이프라인에 융합하는 방법을 학습하고 있습니다.
+              기존 툴의 안정성과 AI의 속도를 결합해 더 효율적이고 확장성 있는 창작 방식을 만드는 것이 목표입니다.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="gallery-strip">
+        <figure class="gallery-item">
+          <span>Motion Mood</span>
+          <img src="day5_1.png" alt="추상 그래픽 이미지" />
+        </figure>
+        <figure class="gallery-item">
+          <span>AI Render</span>
+          <img src="3.png" alt="디지털 아트 이미지" />
+        </figure>
+        <figure class="gallery-item">
+          <span>Visual Lab</span>
+          <img src="4.png" alt="어두운 도시 야경 이미지" />
+        </figure>
+      </div>
+    </section>
+
+    <section id="capability" class="wrap reveal">
+      <div class="section-top">
+        <div class="section-label">02 / Capability</div>
+        <h2 class="section-title">빠르게 배우고, 정확하게 연결하고,
+          <br> 효율적으로 완성합니다.</h2>
+      </div>
+
+      <div class="capabilities">
+        <article class="capability">
+          <span class="idx">A / Trend Adaptability</span>
+          <div>
+            <h3>트렌드 적응력</h3>
+            <p>
+              영상 트렌드가 급변하는 환경에서 익숙한 방식에 머무르지 않고,
+              Blender와 최신 AI 영상 생성 프롬프트 기술을 주도적으로 학습해 작업에 적용합니다.
+            </p>
+          </div>
+        </article>
+
+        <article class="capability">
+          <span class="idx">B / Storytelling</span>
+          <div>
+            <h3>시각적 스토리텔링</h3>
+            <p>
+              장면의 예쁨보다 먼저 메시지, 흐름, 리듬을 설계합니다.
+              스토리보드와 모션의 방향성을 연결해 설득력 있는 영상 경험을 만듭니다.
+            </p>
+          </div>
+        </article>
+
+        <article class="capability">
+          <span class="idx">C / Problem Solving</span>
+          <div>
+            <h3>효율적인 문제 해결</h3>
+            <p>
+              시간과 리소스가 제한된 상황에서 제작 우선순위를 정하고,
+              AI와 기존 제작 툴을 결합해 작업 시간을 줄이는 구조를 설계합니다.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="work" class="wrap reveal">
+      <div class="section-top">
+        <div class="section-label">03 / Work Experience</div>
+        <h2 class="section-title">AI와 영상의 만남.</h2>
+      </div>
+
+      <article class="work-card">
+        <div class="metric">
+          <small>Result Metric</small>
+          <strong>50%+</strong>
+          <span>에셋 제작 및 렌더링에 소요되는 전체 작업 시간을 50% 이상 단축했습니다.</span>
+        </div>
+
+        <div class="work-detail">
+          <h3>Hybrid Motion Workflow</h3>
+          <div class="process">
+            <div class="process-item">
+              <small>Situation</small>
+              <p>모션그래픽 포트폴리오 클래스에서 짧은 기간 내 다수의 고품질 데모 영상을 제작해야 했습니다.</p>
+            </div>
+            <div class="process-item">
+              <small>Task</small>
+              <p>기존 3D 렌더링과 에셋 제작 방식만으로는 마감 기한 내 원하는 퀄리티를 달성하기 어려웠습니다.</p>
+            </div>
+            <div class="process-item">
+              <small>Action</small>
+              <p>복잡한 배경 에셋과 스토리보드는 AI 프롬프트로 빠르게 생성하고, After Effects에서 모션과 트랜지션을 정교화했습니다.</p>
+            </div>
+            <div class="process-item">
+              <small>Result</small>
+              <p>확보된 시간을 연출 디테일 강화에 투자해 더 풍부하고 트렌디한 결과물을 완성했습니다.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="wrap reveal">
+      <div class="section-top">
+        <div class="section-label">04 / Tools</div>
+        <h2 class="section-title">작업 속도를 높이는 기술 스택.</h2>
+      </div>
+
+      <div class="skills-row" aria-label="사용 기술 목록">
+        <span class="skill">After Effects</span>
+        <span class="skill">Cinema 4D</span>
+        <span class="skill">Blender</span>
+        <span class="skill">AI Video Generation</span>
+        <span class="skill">Prompt Engineering</span>
+        <span class="skill">Motion Graphic</span>
+        <span class="skill">Visual Storyboard</span>
+        <span class="skill">Hybrid Workflow</span>
+        <span class="skill">Timeboxing</span>
+      </div>
+    </section>
+
+    <section id="vision" class="wrap reveal">
+      <div class="section-top">
+        <div class="section-label">05 / Vision</div>
+        <h2 class="section-title">제작 속도와 결과물의 밀도를 
+          <br>함께 잡는 사람이 되겠습니다.</h2>
+      </div>
+
+      <div class="vision-grid">
+        <article class="vision-card">
+          <small>1 Year</small>
+          <h3>Speed Up</h3>
+          <p>
+            AI 프롬프트 엔지니어링 역량과 After Effects 노하우를 결합해 반복 작업과 초기 제작 시간을 줄이고,
+            팀의 실무 제작 속도를 눈에 띄게 단축시키겠습니다.
+          </p>
+        </article>
+
+        <article class="vision-card figure">
+          <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80" alt="어두운 작업 분위기의 풍경 이미지" />
+        </article>
+
+        <article class="vision-card figure">
+          <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80" alt="현대적인 작업 공간 이미지" />
+        </article>
+
+        <article class="vision-card">
+          <small>3 Years</small>
+          <h3>Lead System</h3>
+          <p>
+            Blender와 AI 툴을 아우르는 사내 제작 매뉴얼을 구축하고,
+            압도적인 퀄리티의 메인 프로젝트를 리드하는 핵심 영상 디자이너로 성장하겠습니다.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" class="contact wrap reveal">
+      <h2>Let’s make visual stories.</h2>
+      <p>
+        기술과 디자인을 연결해 빠르지만 가볍지 않고 <br> 목적이 분명한 영상 콘텐츠를 만들겠습니다.
+      </p>
+      <a href="mailto:your-email@example.com" class="contact-link">Contact</a>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <span>© 2026 AI Motion Designer</span>
+    <span>HTML · CSS · JavaScript Only</span>
+  </footer>
+
+  <script>
+    const cursor = document.querySelector('.cursor');
+    const cursorDot = document.querySelector('.cursor-dot');
+
+    window.addEventListener('mousemove', (event) => {
+      cursor.style.left = `${event.clientX}px`;
+      cursor.style.top = `${event.clientY}px`;
+      cursorDot.style.left = `${event.clientX}px`;
+      cursorDot.style.top = `${event.clientY}px`;
+    });
+
+    document.querySelectorAll('a, button, .capability, .skill, .process-item, .gallery-item, .vision-card').forEach((item) => {
+      item.addEventListener('mouseenter', () => cursor.classList.add('active'));
+      item.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14 });
+
+    document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
+
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (!target) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+</body>
+</html>
